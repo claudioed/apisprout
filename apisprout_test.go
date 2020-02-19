@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -56,7 +56,7 @@ var localServerTests = []struct {
 }
 
 func TestAddLocalServers(t *testing.T) {
-	viper.SetDefault("port", 8000)
+	os.Setenv("PORT", "8000")
 	for _, tt := range localServerTests {
 		t.Run(tt.name, func(t *testing.T) {
 			servers := make([]*openapi3.Server, len(tt.in))

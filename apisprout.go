@@ -137,7 +137,6 @@ func main() {
 	// Set up global options.
 	flags := root.PersistentFlags()
 
-	addParameter(flags, "port", "p", 8000, "HTTP port")
 	addParameter(flags, "validate-server", "s", false, "Check scheme/hostname/basepath against configured servers")
 	addParameter(flags, "validate-request", "", false, "Check request data structure")
 	addParameter(flags, "watch", "w", false, "Reload when input file changes")
@@ -286,7 +285,8 @@ func addLocalServers(swagger *openapi3.Swagger) error {
 
 		if u.Hostname() != "localhost" {
 			u.Scheme = "http"
-			u.Host = fmt.Sprintf("localhost:%d", viper.GetInt("port"))
+			port, _ := strconv.Atoi(os.Getenv("PORT"))
+			u.Host = fmt.Sprintf("localhost:%d", port)
 
 			ls := &openapi3.Server{
 				URL:         u.String(),
@@ -756,7 +756,9 @@ func server(cmd *cobra.Command, args []string) {
 	if viper.GetBool("https") {
 		format = "🌱 Securely sprouting %s on port %d"
 	}
-	fmt.Printf(format, swagger.Info.Title, viper.GetInt("port"))
+
+	nPort, _ := strconv.Atoi(os.Getenv("PORT"))
+	fmt.Printf(format, swagger.Info.Title, nPort)
 
 	if viper.GetBool("validate-server") && len(swagger.Servers) != 0 {
 		fmt.Printf(" with valid servers:\n")
@@ -767,7 +769,7 @@ func server(cmd *cobra.Command, args []string) {
 		fmt.Printf("\n")
 	}
 
-	port := fmt.Sprintf(":%d", viper.GetInt("port"))
+	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	if viper.GetBool("https") {
 		err = http.ListenAndServeTLS(port, viper.GetString("public-key"),
 			viper.GetString("private-key"), nil)
