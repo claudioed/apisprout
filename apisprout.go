@@ -139,7 +139,6 @@ func main() {
 
 	addParameter(flags, "validate-server", "s", false, "Check scheme/hostname/basepath against configured servers")
 	addParameter(flags, "validate-request", "", false, "Check request data structure")
-	addParameter(flags, "watch", "w", false, "Reload when input file changes")
 	addParameter(flags, "disable-cors", "", false, "Disable CORS headers")
 	addParameter(flags, "header", "H", "", "Add a custom header when fetching API")
 	addParameter(flags, "add-server", "", "", "Add a new valid server URL, use with --validate-server")
@@ -635,16 +634,21 @@ func server(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		if viper.GetBool("watch") {
+		watch, _ := strconv.ParseBool("WATCH")
+
+		if watch {
 			log.Fatal("Watching a URL is not supported.")
 		}
+
 	} else {
 		data, err = ioutil.ReadFile(uri)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if viper.GetBool("watch") {
+		watch, _ := strconv.ParseBool("WATCH")
+
+		if watch {
 			// Set up a new filesystem watcher and reload the router every time
 			// the file has changed on disk.
 			watcher, err := fsnotify.NewWatcher()
